@@ -24,7 +24,44 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+//  app.get("/api2/:date", function (req, res) {
+//    const date_string = new Date(req.params.date);
+//    const date = Date.parse(req.params.date);
+//    console.log(date);
+//    if (isNaN(date.getTime()))
+//     {res.json({ error : "Invalid Date" })};
+//    res.json({ unix: date, utc: date_string.getUTCDate()  });
+//  });
 
+app.get("/api/:date", function (req, res) {
+  const dateString = req.params.date;
+
+  // Validate date format using a regular expression
+  const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/; // Example: YYYY-MM-DD
+  if (!dateFormatRegex.test(dateString)) {
+    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD." });
+  }
+
+  // Create a Date object and check for validity
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return res.status(400).json({ error: "Invalid date." });
+  }
+
+  // Additional check for valid date components
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  if (year < 1000 || month < 0 || month > 11 || day < 1 || day > 31) {
+    return res.status(400).json({ error: "Invalid date components." });
+  }
+
+  // If all validations pass, proceed with response
+  res.json({
+    unix: date.getTime(),
+    utc: date.getUTCDate()
+  });
+});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
